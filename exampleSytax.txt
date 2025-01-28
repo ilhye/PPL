@@ -1,2 +1,37 @@
 // conditional statement: if, if-else, else, nested if, combined, elif
 if input is less than 0 then, display 'If statement'.
+
+// If statement
+x = 50 {
+if x > 20:
+    print("x is greater than 20");
+}
+
+// If-else statement
+y = 3 {
+if y > 5:
+    print("y is greater than 5");
+else:
+    print("y is not greater than 5");
+}
+
+// Nested if-else statement
+z = 7 {
+if z > 5:
+    if z < 10:
+        print("z is between 5 and 10");
+    else:
+        print("z is 10 or greater");
+else:
+    print("z is 5 or less");
+}
+
+// Elif statement
+a = 15 {
+if a < 10:
+    print("a is less than 10");
+elif a < 20:
+    print("a is between 10 and 20");
+else:
+    print("a is 20 or greater");
+}
