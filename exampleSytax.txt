@@ -1,0 +1,2 @@
+// conditional statement: if, if-else, else, nested if, combined, elif
+if input is less than 0 then, display 'If statement'.
