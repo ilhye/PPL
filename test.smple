@@ -1,3 +1,6 @@
 input 'test'
+identity
 input 'test'
 1 + 1
+
+/*take*/

@@ -1,0 +1,140 @@
+// conditional statement: if, if-else, else, nested if, combined, elif
+if input is less than 0 then, display 'If statement'.
+
+//True
+condition(isRaining == True) {  
+    do:  
+        print("It's raining, take an umbrella.");  
+    or:  
+        print("It's not raining, enjoy your day!");  
+}  
+
+//False
+condition(isWeekend == False) {  
+    do:  
+        print("It's a weekday, time to work.");  
+    or:  
+        print("It's the weekend, relax!");  
+}  
+
+//null
+condition(userName == null) {
+    do:
+        print("No user name provided.");
+    or:
+        print("Hello, " + userName + "!");
+}
+
+//and, or, not
+a = True
+b = False
+
+print(“a” and “b”); 
+print(“a” or “b”);
+print(not “a”);    
+
+
+//in
+condition(“s” in “sequence”) {
+    do: 
+        print(“the char s is in the string sequence”);
+}
+
+//condition, do, or, else
+condition(num > 0) {
+    do: 
+        print("Num is greater than 0");
+    or:
+        print("Num is a negative integer");
+    else:
+        print("num is 0");
+}
+
+//break, continue
+loop(counter = 0; counter < 5; counter = counter + 1) {
+    condition(counter == 3) {
+        do:
+            print("Skipping number 3");
+            continue;
+    }
+    condition(counter == 4) {
+        do:
+            print("Breaking at number 4");
+            break;
+    }
+    do:
+        print("Counter is: " + counter);
+}
+
+
+//switch, case, default
+switch(dayOfWeek) {
+    case "Monday": 
+        do: 
+            print("Start of the work week!");
+            break;
+    case "Friday": 
+        do: 
+            print("End of the work week!");
+            break;
+    case "Saturday": 
+    case "Sunday": 
+        do: 
+            print("It's the weekend!");
+            break;
+    default: 
+        do: 
+            print("Just another weekday.");
+}
+
+//loop
+try:
+        loop(num2 == 0) {
+          do:
+            interrupt("Cannot divide by zero!");
+        }
+        return num1 / num2;
+    except:
+        print("An error occurred during division.");
+
+
+//function
+function greet() {
+        return "Hello, my name is " + this.name + " and I am " + this.age + " years old.";
+    }
+
+//class
+class Person {
+    function initialize(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+//return
+try:
+        loop(num2 == 0) {
+          do:
+            interrupt("Cannot divide by zero!");
+        }
+        return num1 / num2;
+    except:
+        print("An error occurred during division.");
+
+//try, except, interrupt
+loop(counter = 0; counter < 5; counter = counter + 1) {
+    try:
+        loop(counter == 3) {
+            do:
+                interrupt("Error: Counter cannot be 3!");
+        }
+        loop(counter == 4) {
+            do:
+                interrupt("Error: Counter cannot be 4!");
+        }
+        do:
+            print("Counter is: " + counter);
+    except:
+        print("An error occurred, skipping this iteration.");
+        continue;
+}
+
