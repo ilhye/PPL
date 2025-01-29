@@ -1,25 +1,40 @@
 import ast
 import os
 import subprocess
+from analyzer import analyzer, parse  # Import necessary components from analyzer.py
 
 def analyze_file(file_path):
     """Analyze a Python file for errors."""
     with open(file_path, 'r') as file:
         code = file.read()
 
-    #Syntax Analysis
+    # Syntax Analysis
     try:
         ast.parse(code)
     except SyntaxError as e:
         print(f"Syntax Error on line {e.lineno}: {e.msg}")
         suggest_fix("syntax", e.msg, e.lineno)
 
-    #Static Analysis
+    # Static Analysis
     print("\nRunning mypy for type checks...")
+    result = os.path.isfile(file_path)
     result = subprocess.run(["mypy", file_path], capture_output=True, text=True)
     if result.returncode != 0:
         print(result.stdout.strip())
         parse_mypy_errors(result.stdout.strip())
+
+    # Token Analysis
+    print("\nRunning token analysis...")
+    try:
+        tokens = parse(file_path)
+        if tokens:
+            print("Token analysis results:")
+            for token in tokens:
+                print(token)
+        else:
+            print("No tokens found.")
+    except Exception as e:
+        print(f"Token analysis failed: {str(e)}")
 
 def suggest_fix(error_type, message, line_no):
     """Suggest fixes for common errors."""
@@ -58,3 +73,10 @@ def suggest_mypy_fix(error_message, line_no):
             return
 
     print(f"Suggestion for line {line_no}: Kindly review the line and refer to the error message provided.")
+
+if __name__ == "__main__":
+    file_path = "test.smple"  # Default filename
+    if os.path.isfile(file_path):
+        analyze_file(file_path)
+    else:
+        print(f"File '{file_path}' does not exist. Please create the file or provide a valid file path.")
