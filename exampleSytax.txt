@@ -1,6 +1,53 @@
 // conditional statement: if, if-else, else, nested if, combined, elif
 if input is less than 0 then, display 'If statement'.
 
+// If
+
+    if (num > 0) {
+        do: 
+            print("The number is positive.");
+}
+
+// If...else
+    if (num >= 0) {
+    do:
+        print("The number is positive or zero.");
+} else {
+    do:
+        print("The number is negative.");
+}
+
+// Nested if...else
+if (age >= 18) {
+    do:
+        print("You are an adult.");
+    if (age >= 65) {
+        do:
+            print("You are also eligible for senior citizen benefits.");
+    } else {
+        do:
+            print("You are not yet eligible for senior citizen benefits.");
+    }
+} else {
+    do:
+        print("You are a minor.");
+}
+
+// if...elif...else
+if (score >= 90) {
+    do:
+        print("You got an A!");
+} elif (score >= 80) {
+    do:
+        print("You got a B!");
+} elif (score >= 70) {
+    do:
+        print("You got a C!");
+} else {
+    do:
+        print("You failed the test.");
+}
+
 //True
 condition(isRaining == True) {  
     do:  
