@@ -42,16 +42,11 @@ class lexerOne:
     def __init__(self, text):
         self.text = text
         self.pos = 0
-        self.line = 1
         self.current_char = self.text[self.pos]
-        self.tokens = []  
 
     # Advance the 'pos' pointer and set the 'current_char' variable
     def advance(self):
         self.pos += 1
-
-        if self.current_char == '\n':
-            self.line += 1
 
         if self.pos < len(self.text):
             self.current_char = self.text[self.pos]
