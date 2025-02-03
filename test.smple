@@ -9,3 +9,53 @@ display x
 display u
 
 while x then display x
+
+// batch and queue process sample for True, False, and, or, not
+
+a = True
+b = False
+
+print(“a” and “b”); 
+print(“a” or “b”);
+print(not “a”);    
+
+// batch and queue process samples using classes and functions
+
+// function
+function greet() {
+    return "Hello, my name is " + this.name + " and I am " + this.age + " years old.";
+}
+
+// class
+class Person {
+    function initialize(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    function greet() {
+        return "Hello, my name is " + this.name + " and I am " + this.age + " years old.";
+    }
+}
+
+// create instances of the class and call functions
+person1 = Person()
+person1.initialize("Alice", 30)
+display person1.greet()
+
+person2 = Person()
+person2.initialize("Bob", 25)
+display person2.greet()
+
+// call greet function directly
+display greet.call({name: "Charlie", age: 40})
+display greet.call({name: "Dana", age: 35})
+
+// create function to display function greet for the instances of person1 and person2
+function displayGreetings() {
+    display person1.greet()
+    display person2.greet()
+}
+
+// call the displayGreetings function
+displayGreetings()
