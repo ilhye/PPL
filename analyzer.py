@@ -4,6 +4,7 @@ import re
 INTEGERS = r'\d+'
 FLOAT = r'[\d+\.\d+]'
 VARIABLES = r'[a-zA-Z0-9_]+'
+STRING = r"\"[^\"]*\""
 ASSIGN = '='
 CONDITION = 'condition'
 LOOPS = ['for', 'while']
@@ -16,9 +17,8 @@ NOT, AND, OR = '!', '&&', '||'  # Logical operators
 # Assignment operators
 ADD_ASSIGN, SUBTRACT_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN = '+=', '-=', '*=', '/='
 INPUT, OUTPUT = 'input', 'display'
-KEYWORDS = ['true', 'false', 'and',
-            'or', 'not', 'in', 'is', 'break', 'continue', 'return']
-
+KEYWORDS = ['True', 'False', 'and',
+            'or', 'not', 'in', 'is', 'break', 'continue', 'return', 'then', 'class', 'this']
 FUNCTION = {'function', 'main'}
 LEFT_CURLY_BRACE, RIGHT_CURLY_BRACE = '{', '}'
 LEFT_PARENTHESIS, RIGHT_PARENTHESIS = '(', ')' 
@@ -65,10 +65,22 @@ class lexerOne:
         word = ''
 
         # Check if the current character is a letter or an underscore
-        while self.current_char is not None and (self.current_char.isalnum() or self.current_char == '_' or re.match(FLOAT, self.current_char)):
+        while self.current_char is not None and (self.current_char.isalnum() or self.current_char == '_'):
             word += self.current_char
             self.advance()
         return word
+    
+    def extract_string(self):
+        string_value = ''
+        self.advance()  # Skip the opening quote
+
+        while self.current_char is not None and self.current_char != '"':
+            string_value += self.current_char
+            self.advance()
+
+        self.advance()  # Skip the closing quote
+        return token('STRING', string_value)
+
 
     # Extract numbers 1001
     def extract_number(self):
@@ -122,6 +134,10 @@ class lexerOne:
                 tokens.append(self.extract_number())
                 continue
 
+            elif self.current_char == '"':
+                tokens.append(self.extract_string())
+                continue
+
             # Check if the current character is a keyword, condition, variable or loop
             elif self.current_char.isalpha() and self.current_char not in [INPUT, OUTPUT]:
                 word = self.extract_fullword()
@@ -140,6 +156,10 @@ class lexerOne:
                     tokens.append(token('LOOP', word))
                 elif re.match(VARIABLES, word):
                     tokens.append(token('VARIABLES', word))
+
+            # Handle 'this.variable' syntax
+            elif self.current_char == '.':
+                tokens.append(token('DOT', self.current_char))
 
             # Check for delimiter
             elif self.current_char == END:
