@@ -1,12 +1,11 @@
 import re
-import json
 
 # Tokens
 INTEGERS = r'\d+'
 FLOAT = r'[\d+\.\d+]'
 VARIABLES = r'[a-zA-Z0-9_]+'
 ASSIGN = '='
-CONDITION = ['if', 'else', 'elif']
+CONDITION = 'condition'
 LOOPS = ['for', 'while']
 COMMENT = r'/\*([a-zA-Z]+)\*/'
 END, PAUSE = '.', ','
@@ -18,7 +17,11 @@ NOT, AND, OR = '!', '&&', '||'  # Logical operators
 ADD_ASSIGN, SUBTRACT_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN = '+=', '-=', '*=', '/='
 INPUT, OUTPUT = 'input', 'display'
 KEYWORDS = ['true', 'false', 'and',
-            'or', 'not', 'in', 'is', 'break', 'continue', 'return',]
+            'or', 'not', 'in', 'is', 'break', 'continue', 'return']
+
+FUNCTION = {'function', 'main'}
+LEFT_CURLY_BRACE, RIGHT_CURLY_BRACE = '{', '}'
+LEFT_PARENTHESIS, RIGHT_PARENTHESIS = '(', ')' 
 
 
 # Define the token types
@@ -38,9 +41,7 @@ class lexerOne:
         self.pos = 0
         self.line = 1
         self.current_char = self.text[self.pos]
-        self.tokens = []  # Store tokens as an instance variable
-        self.variables = {}
-        processing = ''
+        self.tokens = []  
 
     # Advance the 'pos' pointer and set the 'current_char' variable
     def advance(self):
@@ -88,7 +89,8 @@ class lexerOne:
             return token('FLOAT', number)
         else:
             return token('INTEGER', number)
-
+        
+    # Handle two symbols
     def handle_symbols(self):
         symbol = self.current_char
         self.advance()
@@ -104,240 +106,8 @@ class lexerOne:
             self.advance()
 
         return symbol
-
-    def variable_assign(self):
-        while self.current_char is not None and self.current_char != ".":
-            if re.match(VARIABLES, self.current_char):
-                var_name = self.extract_fullword()
-                self.skip_whitespace()
-
-                if self.current_char == ASSIGN:
-                    self.advance()
-                    self.skip_whitespace()
-
-                    var_value = self.extract_fullword()
-
-                    if var_value in self.variables:
-                        # Retrieve stored value
-                        var_value = self.variables[var_value]
-
-                    self.variables[var_name] = var_value  # Store in dictionary
-                    # Debugging output
-                    print(f"Assigned: {var_name} = {self.variables[var_name]}")
-            else:
-                self.advance()
-        return self.variables
-
-    # Perform arithmetic and assignment operations
-    def arithmetic_op(self):
-        tokens = self.tokens
-        last_variable = None  # Store last seen variable name
-
-        for i, token in enumerate(tokens):
-            if token.type == 'VARIABLES':
-                last_variable = token.value  # Store variable name as a string
-
-            if token.type in ['ADD', 'SUBTRACT', 'MULTIPLY', 'DIVIDE']:
-                left = tokens[i - 1]
-                right = tokens[i + 1]
-
-                # Convert token values to numbers
-                left_val = self.variables.get(left.value, left.value)
-                right_val = self.variables.get(right.value, right.value)
-
-                left_val = float(left_val) if '.' in str(
-                    left_val) else int(left_val)
-                right_val = float(right_val) if '.' in str(
-                    right_val) else int(right_val)
-
-                # Perform operation and store result
-
-                if token.type == 'ADD':
-                    self.variables[last_variable] = left_val + right_val
-                elif token.type == 'SUBTRACT':
-                    self.variables[last_variable] = left_val - right_val
-                elif token.type == 'MULTIPLY':
-                    self.variables[last_variable] = left_val * right_val
-                elif token.type == 'DIVIDE':
-                    if right_val != 0:
-                        self.variables[last_variable] = left_val / right_val
-                    else:
-                        print("Error: Division by zero")
-                        continue
-
-                # print(f"{last_variable} = {self.variables[last_variable]}")  # Debug output
-
-        return self.variables  # Ensure variables are returned and stored properly
     
-    def comparison_op(self):
-        tokens = self.tokens
-        last_var = None
-        
-
-        for i, token in enumerate(tokens):
-            # Check if the token is a variable
-            if token.type == 'VARIABLES':
-                last_var = token.value  # Store the variable name
-                
-            # Check if the token is a conditional operator (e.g., 'if', 'else', 'elif')
-            if token.type == 'CONDITION':
-                # Handle the condition token (store or process if needed)
-                print(f"Condition detected: {token.value}")
-                last_var = token.value  # Store condition for reference if needed (adjust as necessary)
-            '''
-            requires yung ano is nasa loob ng variables
-            '''
-            # Check for comparison operators like '==', '!=', '<', '>', etc.
-            if token.type in ['EQUAL', 'NOT_EQUAL', 'LESS_THAN', 'GREATER_THAN', 'LESS_THAN_EQUAL', 'GREATER_THAN_EQUAL']:
-                left = tokens[i - 1]
-                right = tokens[i + 1]
-
-                # Ensure the values are the same type before comparing
-                if left.type in ['INTEGER', 'FLOAT'] and right.type in ['INTEGER', 'FLOAT']:
-                    left_val = float(left.value) if left.type == 'FLOAT' else int(left.value)
-                    right_val = float(right.value) if right.type == 'FLOAT' else int(right.value)
-
-                    # Perform the comparison
-                    if token.type == 'EQUAL':
-                        self.variables[last_var] = left_val == right_val
-                    elif token.type == 'NOT_EQUAL':
-                        self.variables[last_var] = left_val != right_val
-                    elif token.type == 'LESS_THAN':
-                        self.variables[last_var] = left_val < right_val
-                    elif token.type == 'GREATER_THAN':
-                        self.variables[last_var] = left_val > right_val
-                    elif token.type == 'LESS_THAN_EQUAL':
-                        self.variables[last_var] = left_val <= right_val
-                    elif token.type == 'GREATER_THAN_EQUAL':
-                        self.variables[last_var] = left_val >= right_val
-
-            self.advance()  # Move to the next token
-        return self.variables
-
-
-    def logical_op(self):
-        tokens = self.tokens
-        last_var = None
-
-        for i, token in enumerate(tokens):
-            if token.type == 'VARIABLES':
-                last_var = token.value  # Store variable name as a string
-
-            if token.type in ['AND', 'OR', 'NOT']:
-                left = tokens[i - 1]
-                right = tokens[i + 1]
-
-                left_val = bool(int(left.value)) if left.type in [
-                    'INTEGER', 'FLOAT'] else bool(left.value)
-                right_val = bool(int(right.value)) if right.type in [
-                    'INTEGER', 'FLOAT'] else bool(right.value)
-
-                if token.type == 'NOT':
-                    self.variables[last_var] = not right_val
-                elif token.type == 'AND':
-                    self.variables[last_var] = left_val and right_val
-                elif token.type == 'OR':
-                    self.variables[last_var] = left_val or right_val
-
-            self.advance()
-        return self.variables
-
-    # Display output
-    def display_output(self):
-        tokens = self.tokens
-
-        for i, token in enumerate(tokens):
-            if token.type == 'OUTPUT' and token.value == 'display':
-                if i + 1 < len(tokens):
-                    var_name = tokens[i + 1].value
-
-                    if var_name in self.variables:
-                        print(f"{var_name} = {self.variables[var_name]}")
-                    else:
-                        print(f"Error: Variable '{var_name}' is not defined.")
-
-    def conditional_statements(self):
-        tokens = self.tokens
-     
-        for i, token in enumerate(tokens):
-            if token.type == 'CONDITION' and token.value in ['if', 'else', 'elif']:
-                if i + 1 < len(tokens):
-                    var_name = tokens[i + 1].value
-
-                    if var_name in self.variables:
-                        if self.variables[var_name] == True:
-                            print(f"Condition '{token.value}' is True")
-                        elif self.variables[var_name] == False:
-                            print(f"Condition '{token.value}' is False")
-                    else:
-                        print(f"Error: Variable '{var_name}' is not defined.")
-    
-    # Loop statements
-    def loop_statements(self):
-        tokens = self.tokens
-        i = 0
-
-        # Loop through the tokens
-        while i < len(tokens):
-            token = tokens[i]
-
-            if token.type == 'LOOP' and token.value == 'while':
-                if i + 1 < len(tokens):
-                    # Get the condition variable after 'while'
-                    condition_var = tokens[i + 1].value
-
-                    if condition_var not in self.variables:
-                        print(f"Error: Condition variable '{condition_var}' is not defined.")
-                        i += 1
-                        continue
-
-                    i += 2
-
-                    iteration_count = 0
-
-                    # Loop through the tokens inside the 'while' loop
-                    while self.variables.get(condition_var, False):
-                        iteration_count += 1
-
-                        # Terminate the loop if it exceeds 20 iterations
-                        if iteration_count > 20:
-                            for _ in range(20):
-                                print(condition_var) 
-                            print("Loop terminated after 20 iterations.")
-                            break
-
-                        while i < len(tokens):
-                            current_token = tokens[i]
-
-                            if current_token.type == 'OUTPUT' and current_token.value == 'display':
-                                if i + 1 < len(tokens):
-                                    display_var = tokens[i + 1].value
-
-                                    if display_var in self.variables:
-                                        print(f"{display_var} = {self.variables[display_var]}") 
-                                    else:
-                                        print(f"Error: Variable '{display_var}' is not defined.")
-                                i += 2  
-
-                            elif current_token.type == 'END' and current_token.value == '.':
-                                i += 1
-                                break  
-
-                            else:
-                                i += 1
-
-                        # Check the condition variable
-                        if condition_var not in self.variables or not self.variables[condition_var]:
-                            break  
-
-                else:
-                    print("Error: Incomplete 'while' loop syntax.")
-                    i += 1
-
-            # Move to the next token
-            else:
-                i += 1
-
+    # Lexical analyzer
     def analyzer(self):
         tokens = []
 
@@ -352,7 +122,7 @@ class lexerOne:
                 tokens.append(self.extract_number())
                 continue
 
-            # Check if the current character is a letter or an underscore
+            # Check if the current character is a keyword, condition, variable or loop
             elif self.current_char.isalpha() and self.current_char not in [INPUT, OUTPUT]:
                 word = self.extract_fullword()
 
@@ -360,9 +130,11 @@ class lexerOne:
                     tokens.append(token('OUTPUT', word))
                 elif word.lower() == INPUT:
                     tokens.append(token('INPUT', word))
+                elif word in FUNCTION:
+                    tokens.append(token('FUNCTION', word))
                 elif word in KEYWORDS:
                     tokens.append(token('KEYWORD', word))
-                elif word in CONDITION:
+                elif word == CONDITION:
                     tokens.append(token('CONDITION', word))
                 elif word in LOOPS:
                     tokens.append(token('LOOP', word))
@@ -374,6 +146,16 @@ class lexerOne:
                 tokens.append(token('END', self.current_char))
             elif self.current_char == PAUSE:
                 tokens.append(token('PAUSE', self.current_char))
+
+            # Check for parentheses and curly braces
+            elif self.current_char == LEFT_CURLY_BRACE:
+                tokens.append(token('LEFT_CURLY_BRACE', self.current_char))
+            elif self.current_char == RIGHT_CURLY_BRACE:
+                tokens.append(token('RIGHT_CURLY_BRACE', self.current_char))
+            elif self.current_char == LEFT_PARENTHESIS:
+                tokens.append(token('LEFT_PARENTHESIS', self.current_char))
+            elif self.current_char == RIGHT_PARENTHESIS:
+                tokens.append(token('RIGHT_PARENTHESIS', self.current_char))
 
             # Check for assignment, logical and comparison operators
             elif self.current_char in ['<', '>', '=', '!', '+', '-', '*', '/', '&', '|']:
@@ -417,15 +199,14 @@ class lexerOne:
                     tokens.append(token("NOT", compare_op))
 
             else:
-                raise Exception(f'Invalid character {
-                                self.current_char} on line {self.line}')
+                raise Exception(f'Invalid character {self.current_char} on line {self.line}')
 
             self.advance()
 
         self.tokens = tokens
         return tokens
 
-
+# Parse the file
 def parse(file):
     if not file.endswith('.smple'):
         print('Invalid file type')
@@ -433,11 +214,4 @@ def parse(file):
         contents = open(file, 'r').read()
         analyzer_instance = lexerOne(contents)
         tokens = analyzer_instance.analyzer()
-        analyzer_instance.arithmetic_op()
-        analyzer_instance.comparison_op()
-        analyzer_instance.logical_op()
-        analyzer_instance.variable_assign()
-        analyzer_instance.display_output()
-        analyzer_instance.loop_statements()
-        analyzer_instance.conditional_statements()
         return tokens

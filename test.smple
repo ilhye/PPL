@@ -2,10 +2,13 @@ z = 1 + 1
 y = 15 + 15
 x = 6 > 4
 u = 5 + 5
+>=
+==
+!=
+{}
+main () {
 
-display y
-display z
-display x
-display u
+}
+function name() {
 
-while x then display x
+}
