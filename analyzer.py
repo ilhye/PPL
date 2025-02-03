@@ -1,4 +1,7 @@
 import re
+import ast
+import os
+import subprocess
 
 # Tokens
 INTEGERS = r'\d+'
@@ -54,6 +57,47 @@ class lexerOne:
             self.current_char = self.text[self.pos]
         else:
             self.current_char = None
+
+    # Handle tokens that are based on free field format.  
+    def free_field_formats(self):
+        
+        tokens = self.tokens
+        free_field_format_tokens = []
+
+        for token in tokens:
+            # Here we assume free fields are just space-separated tokens that can vary in length
+            if token.type == 'VARIABLES' or token.type == 'KEYWORD':
+                # Process tokens that belong to free field format
+                free_field_format_tokens.append(token)
+
+        # Output the tokens for free field formats with each token on a new line
+        if free_field_format_tokens:
+            print("Free Field Format Tokens:")
+            for token in free_field_format_tokens:
+                print(token)
+        
+        return free_field_format_tokens
+
+    # Handle tokens that are based on fixed field format.
+    def fixed_field_formats(self):
+        
+        tokens = self.tokens
+        fixed_field_format_tokens = []
+
+        for token in tokens:
+            # This assumes fixed field tokens are of a specific length or structure
+            if token.type == 'VARIABLES' or token.type == 'KEYWORD':
+                # Example: Fixed field format might expect tokens of certain lengths
+                if len(token.value) == 4:  # Example: length of 4, modify as necessary
+                    fixed_field_format_tokens.append(token)
+
+        # Output the tokens for fixed field formats with each token on a new line
+        if fixed_field_format_tokens:
+            print("Fixed Field Format Tokens:")
+            for token in fixed_field_format_tokens:
+                print(token)
+        
+        return fixed_field_format_tokens
 
     # Skip whitespaces
     def skip_whitespace(self):
@@ -118,6 +162,56 @@ class lexerOne:
             self.advance()
 
         return symbol
+    
+    # Checks syntax for type-related errors.
+    def analyze_syntax(self, code):
+        try:
+            ast.parse(code)
+        except SyntaxError as e:
+            print(f"Syntax Error on line {e.lineno}: {e.msg}")
+            self.suggest_fix("syntax", e.msg, e.lineno)
+
+    def analyze_static(self, file_path):
+        print("\nRunning mypy for type checks...")
+        result = subprocess.run(["mypy", file_path], capture_output=True, text=True)
+        if result.returncode != 0:
+            print(result.stdout.strip())
+            self.parse_mypy_errors(result.stdout.strip())
+
+    def suggest_fix(self, error_type, message, line_no):
+        suggestions = {
+            "syntax": "Check for mismatched parentheses, colons, or improper indentation.",
+            "name": "Ensure all variables or functions used are defined.",
+            "type": "Verify type annotations and use appropriate types for variables.",
+        }
+        suggestion = suggestions.get(error_type, "Refer to provided suggestion.")
+        print(f"Suggestion for line {line_no}: {suggestion}")
+
+    def parse_mypy_errors(self, output):
+        lines = output.split("\n")
+        for line in lines:
+            if line.strip():
+                parts = line.split(":")
+                if len(parts) >= 4:
+                    file_name = parts[0].strip()
+                    line_no = parts[1].strip()
+                    error_message = ":".join(parts[3:]).strip()
+                    print(f"File: {file_name}, Line: {line_no}, Error: {error_message}")
+                    self.suggest_mypy_fix(error_message, line_no)
+
+    def suggest_mypy_fix(self, error_message, line_no):
+        fixes = {
+            "incompatible type": "Check the type annotations and ensure the types match the expected signature.",
+            "missing return": "Add a return statement with the appropriate type as per the function annotation.",
+            "cannot determine type": "Add explicit type annotations to the variable or function.",
+        }
+
+        for error_key, suggestion in fixes.items():
+            if error_key in error_message.lower():
+                print(f"Suggestion for line {line_no}: {suggestion}")
+                return
+
+        print(f"Suggestion for line {line_no}: Kindly review the line and refer to the error message provided.")
     
     # Lexical analyzer
     def analyzer(self):
@@ -233,5 +327,9 @@ def parse(file):
     else:
         contents = open(file, 'r').read()
         analyzer_instance = lexerOne(contents)
+
         tokens = analyzer_instance.analyzer()
+
+        analyzer_instance.free_field_formats()
+        analyzer_instance.fixed_field_formats()
         return tokens

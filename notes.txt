@@ -5,4 +5,4 @@ Class Analyzer: Takes a string as input and tokenizes it.
 Function tokenize: Opens a JSON file containing tokens and lexemes, eliminates spaces and duplicates in the contents, and separates the contents with commas. A for loop then iterates through the dictionary to check if any lexemes match the split contents.
 Function parse: Takes a file as a parameter and creates an instance of the Analyzer class.
 main.py: The file name is passed as argv[1]. The parse function is called in testJson, and the tokens are printed.
-detection-tool.py: Analyzes Python files for syntax, type, and token errors.
+Function analyze_syntax: Analyzes Python files for syntax, type, and token errors.
