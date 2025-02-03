@@ -1,3 +1,11 @@
-x = 5 + 5
-Y = 15 + 10
-display -> x
+z = 1 + 1
+y = 15 + 15
+x = 6 > 4
+u = 5 + 5
+
+display y
+display z
+display x
+display u
+
+while x then display x
