@@ -1,6 +1,11 @@
-input 'test'
-identity
-input 'test'
-1 + 1
+z = 1 + 1
+y = 15 + 15
+x = 6 > 4
+u = 5 + 5
 
-/*take*/
+display y
+display z
+display x
+display u
+
+while x then display x
