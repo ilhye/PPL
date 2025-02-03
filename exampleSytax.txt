@@ -185,3 +185,79 @@ loop(counter = 0; counter < 5; counter = counter + 1) {
         continue;
 }
 
+// Arithmetic Expression 
+a = 5
+b = 3
+result = a + b  // addition
+print("The result of addition is: ", result)
+
+result = a - b  // subtraction
+print("The result of subtraction is: ", result)
+
+result = a * b  // multiplication
+print("The result of multiplication is: ", result)
+
+result = a / b  // division
+print("The result of division is: ", result)
+
+// Comparison Expression 
+num1 = 10
+num2 = 20
+
+if num1 < num2:
+    print("num1 is less than num2")  // True
+
+if num1 == num2:
+    print("num1 is equal to num2")  // False
+
+if num1 != num2:
+    print("num1 is not equal to num2")  // True
+
+// Logical Expression 
+a = True
+b = False
+
+if a and b:
+    print("Both are true")
+elif a or b:
+    print("At least one is true")
+else:
+    print("Neither are true")
+
+if not a:
+    print("a is False")  // False
+
+// String Expression 
+name = "Ashley"
+greeting = "Hello, " + name + "!"  // Concatenation
+print(greeting)
+
+message = "Welcome to the world of coding!"
+print(message[0:7])  // Slicing: "Welcome"
+
+length = len(message)  // Length of the string
+print("Length of the message: ", length)
+
+// Function Call Expression 
+def square(num):
+    return num * num
+
+result = square(5)  // Function call expression
+print("The square of 5 is: ", result)
+
+// List Expression 
+numbers = [1, 2, 3, 4, 5]
+
+# Adding an item to the list
+numbers.append(6)
+print("List after appending 6: ", numbers)
+
+# Accessing an item by index
+print("First item: ", numbers[0])
+
+# Slicing the list
+print("Sliced list: ", numbers[1:4])
+
+# Removing an item from the list
+numbers.pop(2)
+print("List after popping: ", numbers)
