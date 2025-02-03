@@ -151,6 +151,7 @@ class lexerOne:
 
         return symbol
     
+    # Checks syntax for type-related errors.
     def analyze_syntax(self, code):
         try:
             ast.parse(code)
